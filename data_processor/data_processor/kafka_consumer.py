@@ -1,6 +1,7 @@
 import logging
 
-from confluent_kafka import Consumer
+from confluent_kafka import Consumer, Message
+from settings import KAFKA_MESSAGE_ENCODING
 
 
 class KafkaConsumer:
@@ -41,5 +42,10 @@ class KafkaConsumer:
 
             self.handle_message(message)
 
-    def handle_message(self, message):
-        self.on_consumption(message)
+    @staticmethod
+    def decode_message(message: Message) -> str:
+        return message.value().decode(KAFKA_MESSAGE_ENCODING)
+
+    def handle_message(self, message: Message):
+        decoded_message = KafkaConsumer.decode_message(message)
+        self.on_consumption(decoded_message)

@@ -6,7 +6,7 @@ from kafka_consumer import KafkaConsumer
 from kafka_producer import KafkaProducer
 from settings import get_kafka_consumer_settings, get_kafka_producer_settings
 
-from data_processor import DataProcessor
+from data_processor import RawDataProcessor
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         target_topic,
     )
 
-    processor = DataProcessor(producer.produce)
+    processor = RawDataProcessor(producer.produce)
 
     consumer = KafkaConsumer(
         source_topic,

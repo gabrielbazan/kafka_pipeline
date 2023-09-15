@@ -1,44 +1,39 @@
 import json
 import logging
-from typing import Any, Callable, Dict, Tuple
+from abc import ABC, abstractmethod
+from typing import Callable, Tuple
 
-from confluent_kafka import Message
-from settings import (
-    KAFKA_MESSAGE_ENCODING,
-    LATITUDE_KEY,
-    LONGITUDE_KEY,
-    TIMEZONE_KEY,
-    USER_ID_KEY,
-)
+from settings import LATITUDE_KEY, LONGITUDE_KEY, TIMEZONE_KEY, USER_ID_KEY
 from time_zone import get_timezone
 
 
-class DataProcessor:
+class DataProcessor(ABC):
     def __init__(self, on_processed: Callable) -> None:
         self.on_processed: Callable = on_processed
 
-    def process(self, message):
-        text_data = DataProcessor.decode_message(message)
+    def process(self, message: str) -> None:
+        processed_data = self._process(message)
+        self._invoke_next_step(processed_data)
 
-        logging.info("Processing message: %s", text_data)
+    @abstractmethod
+    def _process(self, message: str) -> Tuple:
+        pass
 
-        user_id, data = DataProcessor.process_message(text_data)
+    def _invoke_next_step(self, processed_data: Tuple) -> None:
+        self.on_processed(*processed_data)
 
-        self.invoke_next_step(user_id, data)
 
-    @staticmethod
-    def decode_message(message: Message) -> str:
-        return message.value().decode(KAFKA_MESSAGE_ENCODING)
+class RawDataProcessor(DataProcessor):
+    def _process(self, message: str) -> Tuple:
+        logging.info("Processing message: %s", message)
 
-    @staticmethod
-    def process_message(text_data: str) -> Tuple[str, Dict[str, Any]]:
-        data = json.loads(text_data)
+        data = json.loads(message)
 
         user_id = data[USER_ID_KEY]
         latitude = data[LATITUDE_KEY]
         longitude = data[LONGITUDE_KEY]
 
-        data[TIMEZONE_KEY] = DataProcessor.try_to_get_timezone(latitude, longitude)
+        data[TIMEZONE_KEY] = RawDataProcessor.try_to_get_timezone(latitude, longitude)
 
         return user_id, data
 
@@ -51,6 +46,3 @@ class DataProcessor:
                 "Could not determine UTC timestamp. Defaulting to original."
             )
             return None  # Making it explicit
-
-    def invoke_next_step(self, user_id: str, data: Dict[str, Any]) -> None:
-        self.on_processed(user_id, data)
