@@ -1,0 +1,4 @@
+Flask==2.3.3
+Flask-RESTful==0.3.10
+pydantic==2.3.0
+confluent-kafka==2.2.0
