@@ -1,21 +1,34 @@
 import logging
+from typing import Any, Dict
 
-from environment import get_api_host, get_api_port
-from flask import Flask
-from flask_restful import Api
-from resources.raw_data.resource import RawDataResource
-from settings import RAW_DATA_PATH
+from confluent_kafka import Producer
+from environment import get_kafka_topic
+from fastapi import FastAPI
+from kafka import produce
+from models import RawData
+from settings import (
+    PYDANTIC_MODEL_DUMP_MODE,
+    RAW_DATA_PATH,
+    get_kafka_producer_settings,
+)
 
-app = Flask(__name__)
-api = Api(app)
-
-api.add_resource(RawDataResource, RAW_DATA_PATH)
+logging.basicConfig(level=logging.DEBUG)
 
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+app = FastAPI()
 
-    host = get_api_host()
-    port = get_api_port()
 
-    app.run(debug=True, host=host, port=port)
+@app.post(RAW_DATA_PATH, status_code=201)
+async def ingest_raw_data(raw_data: RawData):
+    model_json = raw_data.model_dump(mode=PYDANTIC_MODEL_DUMP_MODE)
+
+    send_to_kafka(raw_data.user_id, model_json)
+
+    return model_json
+
+
+def send_to_kafka(user_id: str, data_json: Dict[str, Any]) -> None:
+    kafka_topic = get_kafka_topic()
+    producer_settings = get_kafka_producer_settings()
+    producer = Producer(producer_settings)
+    produce(producer, kafka_topic, user_id, data_json)
