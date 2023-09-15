@@ -1,7 +1,7 @@
 import json
 import logging
 from abc import ABC, abstractmethod
-from typing import Callable, Tuple
+from typing import Callable, Optional, Tuple
 
 from settings import LATITUDE_KEY, LONGITUDE_KEY, TIMEZONE_KEY, USER_ID_KEY
 from time_zone import get_timezone
@@ -38,11 +38,14 @@ class RawDataProcessor(DataProcessor):
         return user_id, data
 
     @staticmethod
-    def try_to_get_timezone(latitude, longitude):
+    def try_to_get_timezone(latitude: float, longitude: float) -> Optional[str]:
+        timezone = None
+
         try:
-            return get_timezone(latitude, longitude)
+            timezone = get_timezone(latitude, longitude)
         except Exception:
             logging.exception(
                 "Could not determine UTC timestamp. Defaulting to original."
             )
-            return None  # Making it explicit
+
+        return timezone
