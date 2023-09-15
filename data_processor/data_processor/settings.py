@@ -2,12 +2,12 @@ from environment import get_kafka_host, get_kafka_port
 
 KAFKA_MESSAGE_ENCODING = "utf-8"
 
-TIMESTAMP_KEY = "timestamp"
+
 USER_ID_KEY = "user_id"
 LATITUDE_KEY = "lat"
 LONGITUDE_KEY = "long"
 
-MESSAGE_TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
+TIMEZONE_KEY = "timezone"
 
 
 def get_kafka_consumer_settings():

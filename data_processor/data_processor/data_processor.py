@@ -8,11 +8,10 @@ from settings import (
     KAFKA_MESSAGE_ENCODING,
     LATITUDE_KEY,
     LONGITUDE_KEY,
-    MESSAGE_TIMESTAMP_FORMAT,
-    TIMESTAMP_KEY,
+    TIMEZONE_KEY,
     USER_ID_KEY,
 )
-from time_zone import to_utc
+from time_zone import get_timezone
 
 
 class DataProcessor:
@@ -38,33 +37,22 @@ class DataProcessor:
         data = json.loads(text_data)
 
         user_id = data[USER_ID_KEY]
-        timestamp = data[TIMESTAMP_KEY]
         latitude = data[LATITUDE_KEY]
         longitude = data[LONGITUDE_KEY]
 
-        data[TIMESTAMP_KEY] = DataProcessor.try_to_convert_to_utc(
-            timestamp,
-            latitude,
-            longitude,
-        )
+        data[TIMEZONE_KEY] = DataProcessor.try_to_get_timezone(latitude, longitude)
 
         return user_id, data
 
     @staticmethod
-    def try_to_convert_to_utc(datetime_str, latitude, longitude):
+    def try_to_get_timezone(latitude, longitude):
         try:
-            return to_utc(
-                datetime_str,
-                latitude,
-                longitude,
-                MESSAGE_TIMESTAMP_FORMAT,
-                MESSAGE_TIMESTAMP_FORMAT,
-            )
+            return get_timezone(latitude, longitude)
         except Exception:
             logging.exception(
                 "Could not determine UTC timestamp. Defaulting to original."
             )
-            return datetime_str
+            return None  # Making it explicit
 
-    def send_to_target_topic(self, user_id: str, data: Dict[str, Any]):
+    def send_to_target_topic(self, user_id: str, data: Dict[str, Any]) -> None:
         produce(self.producer, self.target_topic, user_id, data)
