@@ -87,7 +87,7 @@ make rm
 You can very simply adjust the number of partitions for both topics. This is a decision you make depending on your needs, but is as simple as setting the *RAW_DATA_TOPIC_PARTITIONS* and *PROCESSED_DATA_TOPIC_PARTITIONS* environment variables in the [.env](/.env) file. This will configure the number of partitions for these topics, __AND__ provision the same number of for consumers for them (_Data Processor_ and _Database Sync_).
 
 By default, it runs:
- * 2 instances of the Ingestion API_.
+ * 2 instances of the _Ingestion API_.
  * As many _Data Processors_ as specified by *RAW_DATA_TOPIC_PARTITIONS*.
  * As many _DatabaseSync_ as specified by *PROCESSED_DATA_TOPIC_PARTITIONS*.
 
