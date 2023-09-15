@@ -1,9 +1,8 @@
 import json
 import logging
-from typing import Any, Dict, Tuple
+from typing import Any, Callable, Dict, Tuple
 
-from confluent_kafka import Message, Producer
-from kafka import produce
+from confluent_kafka import Message
 from settings import (
     KAFKA_MESSAGE_ENCODING,
     LATITUDE_KEY,
@@ -15,9 +14,8 @@ from time_zone import get_timezone
 
 
 class DataProcessor:
-    def __init__(self, producer: Producer, target_topic: str) -> None:
-        self.producer: Producer = producer
-        self.target_topic: str = target_topic
+    def __init__(self, on_processed: Callable) -> None:
+        self.on_processed: Callable = on_processed
 
     def process(self, message):
         text_data = DataProcessor.decode_message(message)
@@ -26,7 +24,7 @@ class DataProcessor:
 
         user_id, data = DataProcessor.process_message(text_data)
 
-        self.send_to_target_topic(user_id, data)
+        self.invoke_next_step(user_id, data)
 
     @staticmethod
     def decode_message(message: Message) -> str:
@@ -54,5 +52,5 @@ class DataProcessor:
             )
             return None  # Making it explicit
 
-    def send_to_target_topic(self, user_id: str, data: Dict[str, Any]) -> None:
-        produce(self.producer, self.target_topic, user_id, data)
+    def invoke_next_step(self, user_id: str, data: Dict[str, Any]) -> None:
+        self.on_processed(user_id, data)
