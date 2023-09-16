@@ -1,18 +1,33 @@
 import logging
+from typing import Callable, Dict
 
 from confluent_kafka import Consumer, Message
 from settings import KAFKA_MESSAGE_ENCODING
 
 
+class KafkaConsumerBuilder:
+    @staticmethod
+    def build(
+        consumer_settings: Dict[str, str],
+        source_topic: str,
+        on_consumption: Callable,
+    ) -> "KafkaConsumer":
+        return KafkaConsumer(
+            Consumer(consumer_settings),
+            source_topic,
+            on_consumption,
+        )
+
+
 class KafkaConsumer:
     def __init__(
         self,
-        source_topic_name: str,
         consumer: Consumer,
+        source_topic: str,
         on_consumption=None,
     ) -> None:
-        self.source_topic_name: str = source_topic_name
         self.consumer: Consumer = consumer
+        self.source_topic: str = source_topic
         self.on_consumption = on_consumption
 
     def consume(self):
@@ -21,12 +36,12 @@ class KafkaConsumer:
         except KeyboardInterrupt:
             logging.warning("Stopping consumer as requested by user")
         except Exception:
-            logging.exception("Failed to consume topic '%s'", self.source_topic_name)
+            logging.exception("Failed to consume topic '%s'", self.source_topic)
         finally:
             self.consumer.close()
 
     def try_to_consume_topic(self):
-        self.consumer.subscribe([self.source_topic_name])
+        self.consumer.subscribe([self.source_topic])
 
         while True:
             message = self.consumer.poll(timeout=1.0)

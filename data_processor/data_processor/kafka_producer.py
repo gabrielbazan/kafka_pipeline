@@ -6,6 +6,18 @@ from confluent_kafka import Producer
 from settings import KAFKA_MESSAGE_ENCODING
 
 
+class KafkaProducerBuilder:
+    @staticmethod
+    def build(
+        producer_settings: Dict[str, str],
+        target_topic: str,
+    ) -> "KafkaProducer":
+        return KafkaProducer(
+            Producer(producer_settings),
+            target_topic,
+        )
+
+
 class KafkaProducer:
     def __init__(self, producer: Producer, target_topic: str) -> None:
         self.producer: Producer = producer

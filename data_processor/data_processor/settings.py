@@ -1,3 +1,5 @@
+from typing import Dict
+
 from environment import get_kafka_host, get_kafka_port
 
 KAFKA_MESSAGE_ENCODING = "utf-8"
@@ -10,7 +12,7 @@ LONGITUDE_KEY = "long"
 TIMEZONE_KEY = "timezone"
 
 
-def get_kafka_consumer_settings():
+def get_kafka_consumer_settings() -> Dict[str, str]:
     return {
         "bootstrap.servers": f"{get_kafka_host()}:{get_kafka_port()}",
         "group.id": "data_processors",
@@ -18,7 +20,7 @@ def get_kafka_consumer_settings():
     }
 
 
-def get_kafka_producer_settings():
+def get_kafka_producer_settings() -> Dict[str, str]:
     return {
         "bootstrap.servers": f"{get_kafka_host()}:{get_kafka_port()}",
     }
