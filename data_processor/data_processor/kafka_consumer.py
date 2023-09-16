@@ -1,8 +1,9 @@
 import logging
-from typing import Callable, Dict
+from typing import Dict, Optional, Tuple
 
 from confluent_kafka import Consumer, Message
 from settings import KAFKA_MESSAGE_ENCODING
+from step import Step
 
 
 class KafkaConsumerBuilder:
@@ -10,25 +11,25 @@ class KafkaConsumerBuilder:
     def build(
         consumer_settings: Dict[str, str],
         source_topic: str,
-        on_consumption: Callable,
+        next_step: Step,
     ) -> "KafkaConsumer":
         return KafkaConsumer(
             Consumer(consumer_settings),
             source_topic,
-            on_consumption,
+            next_step,
         )
 
 
-class KafkaConsumer:
+class KafkaConsumer(Step):
     def __init__(
         self,
         consumer: Consumer,
         source_topic: str,
-        on_consumption=None,
+        next_step: Optional[Step] = None,
     ) -> None:
         self.consumer: Consumer = consumer
         self.source_topic: str = source_topic
-        self.on_consumption = on_consumption
+        super().__init__(next_step)
 
     def consume(self):
         try:
@@ -55,12 +56,7 @@ class KafkaConsumer:
                 )
                 continue
 
-            self.handle_message(message)
+            self(message)
 
-    @staticmethod
-    def decode_message(message: Message) -> str:
-        return message.value().decode(KAFKA_MESSAGE_ENCODING)
-
-    def handle_message(self, message: Message):
-        decoded_message = KafkaConsumer.decode_message(message)
-        self.on_consumption(decoded_message)
+    def process(self, message: Message) -> Tuple:
+        return (message.value().decode(KAFKA_MESSAGE_ENCODING),)

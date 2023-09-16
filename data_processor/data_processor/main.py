@@ -3,10 +3,11 @@ from typing import Dict
 
 from environment import get_source_kafka_topic, get_target_kafka_topic
 from kafka_consumer import KafkaConsumer, KafkaConsumerBuilder
-from kafka_producer import KafkaProducer, KafkaProducerBuilder
+from kafka_producer import KafkaProducerBuilder
 from settings import get_kafka_consumer_settings, get_kafka_producer_settings
+from step import Step
 
-from data_processor import RawDataProcessor
+from data_processor import DataProcessor
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
@@ -17,17 +18,17 @@ if __name__ == "__main__":
     consumer_settings: Dict[str, str] = get_kafka_consumer_settings()
     producer_settings: Dict[str, str] = get_kafka_producer_settings()
 
-    producer: KafkaProducer = KafkaProducerBuilder.build(
+    producer: Step = KafkaProducerBuilder.build(
         producer_settings,
         target_topic,
     )
 
-    processor = RawDataProcessor(producer.produce)
+    processor: Step = DataProcessor(next_step=producer)
 
     consumer: KafkaConsumer = KafkaConsumerBuilder.build(
         consumer_settings,
         source_topic,
-        processor.process,
+        next_step=processor,
     )
 
     consumer.consume()

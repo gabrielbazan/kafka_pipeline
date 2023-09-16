@@ -1,9 +1,10 @@
 import json
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from confluent_kafka import Producer
 from settings import KAFKA_MESSAGE_ENCODING
+from step import Step
 
 
 class KafkaProducerBuilder:
@@ -18,12 +19,18 @@ class KafkaProducerBuilder:
         )
 
 
-class KafkaProducer:
-    def __init__(self, producer: Producer, target_topic: str) -> None:
+class KafkaProducer(Step):
+    def __init__(
+        self,
+        producer: Producer,
+        target_topic: str,
+        next_step: Optional[Step] = None,
+    ) -> None:
         self.producer: Producer = producer
         self.target_topic: str = target_topic
+        super().__init__(next_step)
 
-    def produce(self, message_key: str, data: Dict[str, Any]) -> None:
+    def process(self, message_key: str, data: Dict[str, Any]) -> None:
         encoded_data = KafkaProducer.encode_message(data)
 
         logging.info(
