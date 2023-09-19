@@ -1,7 +1,7 @@
 FROM python:3.10
 
 
-ARG PROJECT_PACKAGE_NAME=database_sync
+ARG PROJECT_PACKAGE_NAME=database_populator
 
 ARG WORK_DIR=/code
 ARG REQUIREMENTS_FILENAME=requirements.txt

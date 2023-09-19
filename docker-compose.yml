@@ -40,8 +40,8 @@ services:
       - SOURCE_KAFKA_TOPIC=${RAW_DATA_TOPIC}
       - TARGET_KAFKA_TOPIC=${PROCESSED_DATA_TOPIC}
 
-  database_sync:
-    build: ./database_sync/
+  database_populator:
+    build: ./database_populator/
     depends_on:
       - database
     deploy:
