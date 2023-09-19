@@ -1,12 +1,17 @@
 import json
 import logging
+from abc import ABC, abstractmethod
 
-from confluent_kafka import Message
 from pymongo import MongoClient
-from settings import KAFKA_MESSAGE_ENCODING
 
 
-class MongoSync:
+class MessageProcessor(ABC):
+    @abstractmethod
+    def process(self, message: str) -> None:
+        pass
+
+
+class MongoDbPopulator(MessageProcessor):
     def __init__(
         self,
         mongodb_host,
@@ -19,25 +24,18 @@ class MongoSync:
         self.mongodb_database = mongodb_database
         self.mongodb_collection = mongodb_collection
 
-    def process_message(self, message: Message) -> None:
-        data = MongoSync.decode_message(message)
+    def process(self, message: str) -> None:
+        logging.info("Processing message: %s", message)
 
-        logging.info("Processing message: %s", data)
-
-        record = json.loads(data)
+        record = json.loads(message)
 
         inserted_identifier = self.sync_to_database(record)
 
         logging.info("Inserted record with ID %s", inserted_identifier)
 
-    @staticmethod
-    def decode_message(message: Message) -> str:
-        return message.value().decode(KAFKA_MESSAGE_ENCODING)
-
     def sync_to_database(self, record):
         client = MongoClient(self.mongodb_host, self.mongodb_port)
         database = client[self.mongodb_database]
         collection = database[self.mongodb_collection]
-        # TODO: Assuming data is in chronological order
-        # if exists, then update
+        # TODO: if exists, then update
         return collection.insert_one(record).inserted_id

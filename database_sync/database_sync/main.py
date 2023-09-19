@@ -1,6 +1,6 @@
 import logging
+from typing import Dict
 
-from confluent_kafka import Consumer
 from environment import (
     get_kafka_topic,
     get_mongodb_collection,
@@ -8,27 +8,31 @@ from environment import (
     get_mongodb_host,
     get_mongodb_port,
 )
-from kafka_consumer import KafkaConsumer
-from mongo_sync import MongoSync
+from kafka_consumer import KafkaConsumer, KafkaConsumerBuilder
+from message_processor import MessageProcessor, MongoDbPopulator
 from settings import get_kafka_consumer_settings
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
-    kafka_topic = get_kafka_topic()
-    kafka_consumer_settings = get_kafka_consumer_settings()
+    source_topic: str = get_kafka_topic()
+    consumer_settings: Dict[str, str] = get_kafka_consumer_settings()
 
-    database_sync = MongoSync(
+    message_processor: MessageProcessor = MongoDbPopulator(
         get_mongodb_host(),
         get_mongodb_port(),
         get_mongodb_database(),
         get_mongodb_collection(),
     )
 
-    consumer = KafkaConsumer(
-        kafka_topic,
-        Consumer(kafka_consumer_settings),
-        database_sync.process_message,
+    kafka_consumer: KafkaConsumer = KafkaConsumerBuilder.build(
+        consumer_settings,
+        source_topic,
+        message_processor,
     )
 
-    consumer.consume()
+    with kafka_consumer:
+        logging.info("Consuming Kafka topic")
+        kafka_consumer.consume()
+
+    logging.info("End of process")
