@@ -48,14 +48,40 @@ When the *Ingestion API* produces a message into this topic, it uses the *User I
 
 #### Data Processor
 
+It consumes messages from the *Raw Data Topic*, and performs whatever processing you need and sends the processed data to the *Processed Data Topic*.
+
+In our example, it adds a new "timezone" field to the data, based on its coordinates ("lat" and "long" fields). To do so, it uses [timezonefinder](https://timezonefinder.readthedocs.io/en/latest/index.html) and it's (in-memory mode)[https://timezonefinder.readthedocs.io/en/latest/7_performance.html] to increase performance. Then, it sends it to the *Processed Data Topic* using the *User ID* as *message key*.
 
 #### Processed Data Topic
 
+It is another *Apache Kafka* topic, with multiple partitions (if needed). It stores the data produced by the *Data Processor* into this topic.
+
+An example of a message from this topic:
+```json
+{
+  "timestamp": "2023-09-17T00:32:50.156000",
+  "lat": -31.677696,
+  "long": -65.030317,
+  "user_id": "user_A",
+  "timezone": "America/Argentina/Cordoba"
+}
+```
 
 #### Database Populator
 
+A very simple process that consumes from the *Processed Data Topic* and inserts the data into the *Database*.
 
 #### Database
+
+It persists all the processed data. 
+
+In our example, the processed data is the data that came from the API, plus an additional "timezone" field.
+
+This data is stored in a single collection in a MongoDB instance.
+
+An example of a record:
+
+![An example of a record](/docs/static/mongodb_record_with_timezone.png?raw=true)
 
 
 ## Repo structure
