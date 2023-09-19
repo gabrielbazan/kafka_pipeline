@@ -1,10 +1,10 @@
-# Kafka Pipeline
+# Simple Kafka Pipeline
 
-This repo aims to show an example of how to implement a simple data pipeline with Apache Kafka. 
+This repo aims to show an example of how to implement a simple data pipeline with *Apache Kafka*. 
 
 For our particular example, we'll build an API that receives some user data containing geographical coordinates, and behind it a pipeline that gets the timezone for the given coordinates, and then saves the processed data into a database. It is of course not a very useful pipeline, but it should give you an idea of how to build a pipeline that actually does a more complex processing.
 
-We'll use technologies like Apache Kafka, NGINX, Python, FastAPI, Docker, and MongoDB.
+We'll use technologies like *Apache Kafka*, *NGINX*, *Python*, *FastAPI*, *Docker*, and *MongoDB*.
 
 
 ## Architecture
@@ -23,7 +23,7 @@ It is a NGINX reverse proxy. Here you can find its [nginx.conf](/api_load_balanc
 
 #### Ingestion API
 
-This is the API that receives, validates and sends the data to a Kafka topic (the *Raw Data Topic*) to be processed by the pipeline. It could be any kind of data.
+This is the API that receives, validates and sends the data to an *Apache Kafka* topic (the *Raw Data Topic*) to be processed by the pipeline. It could be any kind of data.
 
 In our implementation, it's a very simple FastAPI API.
 
@@ -31,10 +31,10 @@ And in our example, this API receives messages like the following:
 
 ```json
 {
-  "timestamp": "2023-09-17T00:32:50.156000",
-  "lat": -31.677696,
-  "long": -65.030317,
-  "user_id": "user_A"
+    "user_id": "user_A",
+    "lat": -31.677696,
+    "long": -65.030317,
+    "timestamp": "2023-09-17T00:32:50.156000"
 }
 ```
 
@@ -50,7 +50,7 @@ When the *Ingestion API* produces a message into this topic, it uses the *User I
 
 It consumes messages from the *Raw Data Topic*, and performs whatever processing you need and sends the processed data to the *Processed Data Topic*.
 
-In our example, it adds a new "timezone" field to the data, based on its coordinates ("lat" and "long" fields). To do so, it uses [timezonefinder](https://timezonefinder.readthedocs.io/en/latest/index.html) and it's (in-memory mode)[https://timezonefinder.readthedocs.io/en/latest/7_performance.html] to increase performance. Then, it sends it to the *Processed Data Topic* using the *User ID* as *message key*.
+In our example, it adds a new "timezone" field to the data, based on its coordinates ("lat" and "long" fields). To do so, it uses [timezonefinder](https://timezonefinder.readthedocs.io/en/latest/index.html) and it's [in-memory mode](https://timezonefinder.readthedocs.io/en/latest/7_performance.html) to increase performance. Then, it sends it to the *Processed Data Topic* using the *User ID* as *message key*.
 
 #### Processed Data Topic
 
@@ -59,11 +59,11 @@ It is another *Apache Kafka* topic, with multiple partitions (if needed). It sto
 An example of a message from this topic:
 ```json
 {
-  "timestamp": "2023-09-17T00:32:50.156000",
-  "lat": -31.677696,
-  "long": -65.030317,
-  "user_id": "user_A",
-  "timezone": "America/Argentina/Cordoba"
+    "user_id": "user_A",
+    "lat": -31.677696,
+    "long": -65.030317,
+    "timestamp": "2023-09-17T00:32:50.156000",
+    "timezone": "America/Argentina/Cordoba"
 }
 ```
 
