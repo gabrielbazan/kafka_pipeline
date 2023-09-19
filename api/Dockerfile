@@ -1,0 +1,25 @@
+FROM python:3.10
+
+
+ARG PROJECT_PACKAGE_NAME=api
+
+ARG WORK_DIR=/code
+ARG REQUIREMENTS_FILENAME=requirements.txt
+
+ENV API_HOST=${API_HOST:-0.0.0.0}
+ENV API_PORT=${API_PORT:-5000}
+
+
+WORKDIR ${WORK_DIR}
+
+
+
+COPY ${REQUIREMENTS_FILENAME} .
+RUN pip install -r ${REQUIREMENTS_FILENAME}
+
+
+COPY ${PROJECT_PACKAGE_NAME} .
+
+
+
+CMD uvicorn main:app --host ${API_HOST} --port ${API_PORT} --reload

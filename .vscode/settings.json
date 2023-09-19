@@ -1,0 +1,11 @@
+{
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none",
+    "python.analysis.extraPaths": [
+        "./load_balancer/load_balancer",
+        "./api/api",
+        "./data_processor/data_processor",
+    ]
+}
