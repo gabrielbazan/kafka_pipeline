@@ -87,10 +87,10 @@ An example of a record:
 ## Repo structure
 
 It is a _Docker Compose_ application (at least in our local environment), with multiple services. Each service is dockerized and resides on its own folder:
- * [API Load Balancer (NGINX)](/api_load_balancer/).
- * [Ingestion API](/api/).
- * [Data Processor](/data_processor/).
- * [Database Sync](/database_sync/).
+ * [API Load Balancer (NGINX)](/api_load_balancer/)
+ * [Ingestion API](/api/)
+ * [Data Processor](/data_processor/)
+ * [Database Populator](/database_populator/)
 
 In a real-world project, each component would live in its own repository. Here we've chosen to have it all in a single repo to keep it simple, but all services are completely decoupled from each other.
 
@@ -120,7 +120,7 @@ make create_virtualenv
 
 ```bash
 make install_requirements
-make install_dev_requirements
+make install_test_requirements
 ```
 
 ### Tests
@@ -153,12 +153,12 @@ make rm
 
 ## Scaling
 
-You can very simply adjust the number of partitions for both topics. This is a decision you make depending on your needs, but is as simple as setting the *RAW_DATA_TOPIC_PARTITIONS* and *PROCESSED_DATA_TOPIC_PARTITIONS* environment variables in the [.env](/.env) file. This will configure the number of partitions for these topics, __AND__ provision the same number of for consumers for them (_Data Processor_ and _Database Sync_).
+You can very simply adjust the number of partitions for both topics. This is a decision you make depending on your needs. In this example, it is as simple as setting the *RAW_DATA_TOPIC_PARTITIONS* and *PROCESSED_DATA_TOPIC_PARTITIONS* environment variables in the [.env](/.env) file. This will configure the number of partitions for these topics, __AND__ provision the same number of for consumers for them (_Data Processor_ and _Database Populator_).
 
 By default, it runs:
  * 2 instances of the _Ingestion API_.
  * As many _Data Processors_ as specified by *RAW_DATA_TOPIC_PARTITIONS*.
- * As many _DatabaseSync_ as specified by *PROCESSED_DATA_TOPIC_PARTITIONS*.
+ * As many _Database Populators_ as specified by *PROCESSED_DATA_TOPIC_PARTITIONS*.
 
 And you can scale up or down with a single command:
 ```bash
