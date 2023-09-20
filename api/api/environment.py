@@ -7,13 +7,13 @@ class EnvironmentVariable:
     KAFKA_TOPIC = "KAFKA_TOPIC"
 
 
-def get_kafka_host():
+def get_kafka_host() -> str:
     return environ[EnvironmentVariable.KAFKA_HOST]
 
 
-def get_kafka_port():
+def get_kafka_port() -> str:
     return environ[EnvironmentVariable.KAFKA_PORT]
 
 
-def get_kafka_topic():
+def get_kafka_topic() -> str:
     return environ[EnvironmentVariable.KAFKA_TOPIC]

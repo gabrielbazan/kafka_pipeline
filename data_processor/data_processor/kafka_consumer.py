@@ -1,5 +1,6 @@
 import logging
-from typing import Dict
+from types import TracebackType
+from typing import Dict, Type
 
 from confluent_kafka import Consumer, Message
 from message_processor import MessageProcessor
@@ -33,13 +34,19 @@ class KafkaConsumer:
         self.source_topic: str = source_topic
         self.message_processor: MessageProcessor = message_processor
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.consumer.subscribe([self.source_topic])
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Type[BaseException],
+        exc_val: BaseException,
+        exc_tb: TracebackType,
+    ) -> "KafkaConsumer":
         self.consumer.close()
+        return self
 
-    def consume(self):
+    def consume(self) -> None:
         try:
             self.try_to_consume_topic()
         except KeyboardInterrupt:
@@ -73,4 +80,5 @@ class KafkaConsumer:
 
     @staticmethod
     def decode_message(message: Message) -> str:
-        return message.value().decode(KAFKA_MESSAGE_ENCODING)
+        decoded_message: str = message.value().decode(KAFKA_MESSAGE_ENCODING)
+        return decoded_message

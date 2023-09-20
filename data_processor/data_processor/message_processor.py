@@ -37,7 +37,8 @@ class TimezoneAppender(MessageProcessor):
 
     @staticmethod
     def parse_message(message: str) -> Dict[str, Any]:
-        return json.loads(message)
+        data: Dict[str, Any] = json.loads(message)
+        return data
 
     @staticmethod
     def add_timezone(data: Dict[str, Any]) -> None:

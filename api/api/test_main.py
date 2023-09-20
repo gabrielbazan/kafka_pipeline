@@ -1,7 +1,7 @@
 import sys
 from os import environ
 from os.path import dirname
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from fastapi.testclient import TestClient
 
@@ -27,7 +27,7 @@ MOCKED_ENVIRONMENT_VARIABLES = {
 
 @patch("main.Producer")
 @patch.dict(environ, MOCKED_ENVIRONMENT_VARIABLES, clear=True)
-def test_send_valid_raw_data(producer_mock):
+def test_send_valid_raw_data(producer_mock: MagicMock) -> None:
     raw_data = {
         "timestamp": "2017-07-30T00:31:46.575000",
         "lat": 50.701,
