@@ -12,3 +12,30 @@ repos:
     rev: 6.0.0
     hooks:
       - id: flake8
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.1
+    hooks:
+      - id: mypy
+        args: [--strict, --ignore-missing-imports]
+        pass_filenames: false
+        files: ^api/api/
+        entry: bash -c 'cd api && mypy -p api "$@"' --
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.1
+    hooks:
+      - id: mypy
+        args: [--strict, --ignore-missing-imports]
+        pass_filenames: false
+        files: ^data_processor/data_processor/
+        entry: bash -c 'cd data_processor && mypy -p data_processor "$@"' --
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.1
+    hooks:
+      - id: mypy
+        args: [--strict, --ignore-missing-imports]
+        pass_filenames: false
+        files: ^database_populator/database_populator/
+        entry: bash -c 'cd database_populator && mypy -p database_populator "$@"' --

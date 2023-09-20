@@ -11,29 +11,29 @@ class EnvironmentVariable:
     MONGODB_COLLECTION = "MONGODB_COLLECTION"
 
 
-def get_kafka_host():
+def get_kafka_host() -> str:
     return environ[EnvironmentVariable.KAFKA_HOST]
 
 
-def get_kafka_port():
+def get_kafka_port() -> str:
     return environ[EnvironmentVariable.KAFKA_PORT]
 
 
-def get_kafka_topic():
+def get_kafka_topic() -> str:
     return environ[EnvironmentVariable.KAFKA_TOPIC]
 
 
-def get_mongodb_host():
+def get_mongodb_host() -> str:
     return environ[EnvironmentVariable.MONGODB_HOST]
 
 
-def get_mongodb_port():
+def get_mongodb_port() -> int:
     return int(environ[EnvironmentVariable.MONGODB_PORT])
 
 
-def get_mongodb_database():
+def get_mongodb_database() -> str:
     return environ[EnvironmentVariable.MONGODB_DATABASE]
 
 
-def get_mongodb_collection():
+def get_mongodb_collection() -> str:
     return environ[EnvironmentVariable.MONGODB_COLLECTION]

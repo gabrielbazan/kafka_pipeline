@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any, Dict
 
-from confluent_kafka import Producer
+from confluent_kafka import Message, Producer
 from settings import KAFKA_MESSAGE_ENCODING
 
 
@@ -26,7 +26,7 @@ def produce(
     producer.flush()
 
 
-def _produce_receipt(error, message):
+def _produce_receipt(error: str, message: Message) -> None:
     if error is not None:
         logging.error(
             "An error occurred while sending the message to the topic: '%s'", error

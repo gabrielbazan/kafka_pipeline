@@ -18,13 +18,13 @@ logging.basicConfig(level=logging.DEBUG)
 app = FastAPI()
 
 
-@app.post(RAW_DATA_PATH, status_code=201)
-async def ingest_raw_data(raw_data: RawData):
+@app.post(RAW_DATA_PATH, status_code=201)  # type: ignore
+async def ingest_raw_data(raw_data: RawData) -> RawData:
     model_json = raw_data.model_dump(mode=PYDANTIC_MODEL_DUMP_MODE)
 
     send_to_kafka(raw_data.user_id, model_json)
 
-    return model_json
+    return raw_data
 
 
 def send_to_kafka(user_id: str, data_json: Dict[str, Any]) -> None:
